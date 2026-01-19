@@ -9,7 +9,6 @@ function Contact() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ updates state correctly
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -21,7 +20,7 @@ function Contact() {
     setStatus("");
 
     try {
-      const response = await fetch("http://localhost:5002/api/contact", {
+      const response = await fetch("http://localhost:5003/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,13 +38,7 @@ function Contact() {
         throw new Error(data.error || "Failed to send");
       }
 
-      // ✅ clear form properly
-      setForm({
-        name: "",
-        email: "",
-        message: "",
-      });
-
+      setForm({ name: "", email: "", message: "" });
       setStatus("✅ Message sent successfully. Thank you!");
     } catch (err) {
       setStatus(`❌ ${err.message}`);
@@ -55,15 +48,15 @@ function Contact() {
   };
 
   return (
-    <section className="contact-section reveal" id="contact">
-      <div className="container">
-        <h2 className="text-center">Contact Me</h2>
+    <section className="contact-section" id="contact">
+      <div className="contact-container">
+        <h2>Contact Me</h2>
 
-        <form className="contact-form" onSubmit={handleSubmit} autoComplete="off">
+        <form className="contact-form" onSubmit={handleSubmit}>
           <input
             type="text"
-            name="name"               // ✅ REQUIRED
-            placeholder="Your Full Name"
+            name="name"
+            placeholder="Your Name"
             value={form.name}
             onChange={handleChange}
             required
@@ -71,21 +64,21 @@ function Contact() {
 
           <input
             type="email"
-            name="email"             // ✅ REQUIRED
-            placeholder="Your Email Address"
+            name="email"
+            placeholder="Your Email"
             value={form.email}
             onChange={handleChange}
             required
           />
 
           <textarea
-            name="message"           // ✅ REQUIRED
-            placeholder="Write your message..."
+            name="message"
+            placeholder="Your Message"
             rows="4"
             value={form.message}
             onChange={handleChange}
             required
-          ></textarea>
+          />
 
           <button type="submit" disabled={loading}>
             {loading ? "Sending..." : "Send Message"}

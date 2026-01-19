@@ -1,23 +1,63 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
+
+// ROUTES
+const contactRoutes = require("./routes/contactRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
 const app = express();
 
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB error:", err));
+const PORT = process.env.PORT || 5002;
 
-app.use("/api/projects", require("./routes/projectRoutes"));
-app.use("/api/contact", require("./routes/contactRoutes"));
+// STATUS VARIABLE (for website)
+let dbStatus = "❌ MongoDB not connected";
 
-const PORT = 5002;
+// =========================
+// START SERVER FUNCTION
+// =========================
+async function startServer() {
+  try {
+    console.log("⏳ Connecting to MongoDB...");
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
+
+    dbStatus = "✅ MongoDB connected";
+    console.log("✅ MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:");
+    console.error(error.message);
+    process.exit(1);
+  }
+}
+
+// START SERVER
+startServer();
+
+// =========================
+// ROUTES
+// =========================
+app.use("/api/contact", contactRoutes);
+app.use("/api/projects", projectRoutes);
+
+// =========================
+// STATUS API (for website)
+// =========================
+app.get("/api/status", (req, res) => {
+  res.json({
+    server: "✅ Backend running",
+    database: dbStatus,
+  });
 });
